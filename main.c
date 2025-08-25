@@ -77,11 +77,11 @@ void CalculatorAntenna_calculate(CalculatorAntenna* calc, double frequency, doub
                 getLength(len, lengthStr);
                 
                 char row[256];
-                sprintf(row, "%.8g = %s\n", fr, lengthStr);
+                sprintf(row, "(L) x %.8g = %s\n", fr, lengthStr);
                 strcat(result, row);
             }
         }
-        
+
         if (insane)
             strcpy(output, "(Antenna too big/small)");
         else
@@ -96,11 +96,12 @@ void CalculatorAntenna_destroy(CalculatorAntenna* calc) {
 
 int main(int argc, char *argv[]) {
     char output[4096];
+	double lambda;
 
     printf("Antenna length calculator by 13MAD86\n\n");
     printf("To determine the optimal length of a required antenna, first calculate the wavelength (L):\n\n");
-    printf("(C) = the speed of light (299792458 m/s)\n");
-    printf("(F) = the frequency of the radio module used (for example 433 MHz = 433000000 Hz)\n");
+    printf("(C) = The speed of light (299792458 m/s)\n");
+    printf("(F) = The frequency of the radio module used (for example 433 MHz = 433000000 Hz)\n");
     printf("(L) = (C) / (F)\n\n");
 
 	if (argv[1] == "" || argv[2] == "")
@@ -114,9 +115,9 @@ int main(int argc, char *argv[]) {
 
     CalculatorAntenna_calculate(calc, atof(argv[1]), atof(argv[2]), output);
     printf("Frequency: %s / Factor: %s\n%s\n\n", argv[1], argv[2], output);
+	printf("Lambda: (L) = %f\n\n", 300 / atof(argv[1]));
 
     CalculatorAntenna_destroy(calc);
 
 	return 0;
 }
-
