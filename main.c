@@ -115,9 +115,10 @@ int main(int argc, char *argv[]) {
 
     CalculatorAntenna_calculate(calc, atof(argv[1]), atof(argv[2]), output);
     printf("Frequency: %s / Factor: %s\n%s\n\n", argv[1], argv[2], output);
-	printf("Lambda: (L) = %f\n\n", 300 / atof(argv[1]));
+	printf("Lambda: (L) = %.2lf\n\n", 300 / atof(argv[1]));
 
     CalculatorAntenna_destroy(calc);
 
 	return 0;
 }
+
