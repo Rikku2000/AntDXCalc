@@ -1,0 +1,122 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+
+typedef struct {
+    double speed;
+    double fractions[15];
+    int fractions_count;
+} CalculatorAntenna;
+
+void replace_dot_with_comma(char *str) {
+    char *dot_pos = strchr(str, '.');
+    if (dot_pos != NULL)
+        *dot_pos = ',';
+}
+
+void getLength(double rawValue, char *result) {
+    double resultValue = rawValue;
+    char resultUnit[4];
+    
+    if (resultValue > 1000) {
+        resultValue /= 1000;
+        strcpy(resultUnit, "km");
+    } else if (resultValue < 0.01) {
+        resultValue *= 1000;
+        strcpy(resultUnit, "mm");
+    } else if (resultValue < 1) {
+        resultValue *= 100;
+        strcpy(resultUnit, "cm");
+    } else
+        strcpy(resultUnit, "m");
+
+    sprintf(result, "%.2f %s", resultValue, resultUnit);
+    replace_dot_with_comma(result);
+}
+
+CalculatorAntenna* CalculatorAntenna_new() {
+    CalculatorAntenna* calc = (CalculatorAntenna*)malloc(sizeof(CalculatorAntenna));
+    if (calc == NULL)
+        return NULL;
+    
+    calc->speed = 299792458;
+
+    double temp_fractions[] = {128, 64, 32, 16, 8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125};
+    calc->fractions_count = 15;
+    
+    for (int i = 0; i < calc->fractions_count; i++)
+        calc->fractions[i] = temp_fractions[i];
+    
+    return calc;
+}
+
+void CalculatorAntenna_calculate(CalculatorAntenna* calc, double frequency, double frequencyUnit, char* output) {
+    if (calc == NULL || output == NULL) {
+        strcpy(output, "-----");
+        return;
+    }
+    
+    double freq = frequency * frequencyUnit;
+    
+    if (isnan(freq) || freq <= 0)
+        strcpy(output, "-----");
+    else {
+        double lambda = calc->speed / freq;
+        char result[4096] = "\n- Antenna lengths:\n\nFractions of the wavelength can then be used as a measure for an antenna:\n\n";
+        bool insane = true;
+
+        for (int i = 0; i < calc->fractions_count; i++) {
+            double fr = calc->fractions[i];
+            double len = lambda * fr;
+            
+            if (len < 10.0 && len > 0.01) {
+                insane = false;
+                char lengthStr[64];
+                getLength(len, lengthStr);
+                
+                char row[256];
+                sprintf(row, "%.8g = %s\n", fr, lengthStr);
+                strcat(result, row);
+            }
+        }
+        
+        if (insane)
+            strcpy(output, "(Antenna too big/small)");
+        else
+            strcpy(output, result);
+    }
+}
+
+void CalculatorAntenna_destroy(CalculatorAntenna* calc) {
+    if (calc != NULL)
+        free(calc);
+}
+
+int main(int argc, char *argv[]) {
+    char output[4096];
+
+    printf("Antenna length calculator by 13MAD86\n\n");
+    printf("To determine the optimal length of a required antenna, first calculate the wavelength (L):\n\n");
+    printf("(C) = the speed of light (299792458 m/s)\n");
+    printf("(F) = the frequency of the radio module used (for example 433 MHz = 433000000 Hz)\n");
+    printf("(L) = (C) / (F)\n\n");
+
+	if (argv[1] == "" || argv[2] == "")
+        return 0;
+
+    CalculatorAntenna* calc = CalculatorAntenna_new();
+    if (calc == NULL) {
+        printf("Failed to create calculator\n");
+        return 0;
+    }
+
+    CalculatorAntenna_calculate(calc, atof(argv[1]), atof(argv[2]), output);
+    printf("Frequency: %s / Factor: %s\n%s\n\n", argv[1], argv[2], output);
+
+    CalculatorAntenna_destroy(calc);
+
+	return 0;
+}
+
