@@ -33,11 +33,17 @@ void getLength(double rawValue, char *result) {
         *dot_pos = ',';
 }
 
-int main(int argc, char *argv[]) {
+int main (int argc, char *argv[]) {
     char output[4096];
 
-	if (argv[1] == "" || argv[2] == "")
+	system("Color 0A");
+
+    printf("Antenna length calculator by 13MAD86\n\n");
+
+    if (argc < 3) {
+        printf("- Usage: AntDXCalc [frequency] [factor]\n");
         return 0;
+    }
 
     CalculatorAntenna* calc = (CalculatorAntenna*)malloc(sizeof(CalculatorAntenna));
     if (calc == NULL) {
@@ -53,7 +59,6 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < calc->fractions_count; i++)
         calc->fractions[i] = temp_fractions[i];
 
-    printf("Antenna length calculator by 13MAD86\n\n");
     printf("To determine the optimal length of a required antenna, first calculate the wavelength (L):\n\n");
     printf("(C) = The speed of light (299792458 m/s)\n");
     printf("(F) = The frequency of the radio module used (for example 433 MHz = 433000000 Hz)\n");
